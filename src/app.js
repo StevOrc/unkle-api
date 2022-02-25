@@ -3,9 +3,10 @@ const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const initDb = require("./helpers/db-init");
-const authRouter = require("./routes/auth.routes");
 const { errorHandling } = require("./middlewares/errorHandling");
 const createError = require("http-errors");
+const authRouter = require("./routes/auth.routes");
+const contractRouter = require("./routes/contract.routes");
 
 // mongodb connection
 initDb();
@@ -24,6 +25,7 @@ app.get("/api/v1/greed", (req, res) => {
 
 // Routes configuration
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/contracts", contractRouter);
 
 // Not found Route
 app.use("/", () => {

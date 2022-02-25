@@ -23,7 +23,7 @@ const contractSchema = new mongoose.Schema({
   options: [
     { type: mongoose.Schema.Types.ObjectId, ref: "Option", required: true },
   ],
-  options: [
+  users: [
     { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   ],
 });
