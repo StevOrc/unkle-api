@@ -22,4 +22,11 @@ module.exports = {
     users: Joi.array().min(1).required(),
     contractNumber: Joi.number(),
   }),
+  // Contract schema for resiliation
+  contractResiliationSchema: Joi.object({
+    endDate: Joi.string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .message("endDate must be in format yyyy-mm-dd"),
+    isContract: Joi.string().required(),
+  }),
 };
