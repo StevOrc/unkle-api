@@ -6,11 +6,13 @@ const {
 const {
   isValidDate,
   isDateAfter,
-  isDateNow,
+  isDateBeforeToday,
+  isEndDateBeforeStarDate,
 } = require("../helpers/date-validation");
 const User = require("../models/user.model");
 const Contract = require("../models/contract.model");
 const { format } = require("date-fns");
+const { validateStatus } = require("../helpers/validate-status-contract");
 
 module.exports = {
   /**
@@ -28,24 +30,35 @@ module.exports = {
       const result = await contractSchema.validateAsync(req.body);
       if (!isValidDate(result.startDate))
         throw createError.BadRequest(
-          `startDate - ${result.startDate} is an invalid date`
+          `startDate - ${result.startDate} is invalid`
         );
+
+      if (isDateBeforeToday(result.startDate))
+        throw createError.BadRequest(
+          `invalid startDate ${result.startDate} - must be today or after`
+        );
+
       // If endDate is provided, we check if is a valid date
       if (result.endDate) {
         if (!isValidDate(result.endDate))
           throw createError.BadRequest(
-            `endDate - ${result.endDate} is an invalid date`
+            `endDate - ${result.endDate} is invalid`
           );
 
         if (!isDateAfter(result.startDate, result.endDate))
           throw createError.BadRequest(`endDate must be after the startDate`);
-        result.status = "active";
       }
-      const newContract = Contract({
+
+      // Creation of the contract
+      let newContract = Contract({
         ...result,
         contractNumber:
           result.contractNumber || Math.floor(Math.random() * 100),
       });
+
+      // Before saving the contract we update it's status
+      newContract = validateStatus(newContract);
+
       const savedContract = await newContract.save();
       savedContract.users.forEach(async (el) => {
         const user = await User.findById(el);
@@ -70,7 +83,7 @@ module.exports = {
       const result = await contractResiliationSchema.validateAsync(req.body);
       const { isContract: id, endDate } = result;
       if (!id) throw createError.BadRequest(`No id provided`);
-      const contract = await Contract.findById(id);
+      let contract = await Contract.findById(id);
       if (!contract)
         throw createError.BadRequest(
           `Contract not found with the given id : ${id}`
@@ -81,14 +94,12 @@ module.exports = {
         throw createError.BadRequest(`endDate - ${endDate} is invalid`);
 
       if (
-        !isDateAfter(format(contract.startDate, "yyyy-MM-dd"), result.endDate)
+        isEndDateBeforeStarDate(
+          format(contract.startDate, "yyyy-MM-dd"),
+          result.endDate
+        )
       )
         throw createError.BadRequest(`endDate must be after the startDate`);
-
-      //  Update the status of the contract depends on the endDate
-      const resultDateNow = isDateNow(endDate);
-      if (resultDateNow) contract.status = "finished";
-      else contract.status = "active";
 
       // update the endDate property of the contract
       contract.endDate = result.endDate;
@@ -101,6 +112,9 @@ module.exports = {
         }
       });
       contract.users = [];
+
+      contract = validateStatus(contract);
+
       await contract.save();
       res.status(200).send({ message: "with success" });
     } catch (error) {
@@ -110,12 +124,22 @@ module.exports = {
   },
 
   // TEST PURPOSE DELETE ALL CONTRACS
-  // async deleteAll(req, res, next) {
-  //   try {
-  //     await Contract.deleteMany({});
-  //     res.status(200).send({ message: "Sucess delete ALL contracts" });
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // },
+  async deleteAll(req, res, next) {
+    try {
+      await Contract.deleteMany({});
+      res.status(200).send({ message: "Sucess delete ALL contracts" });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async testDate(req, res, next) {
+    try {
+      const { date } = req.body;
+      const result = isDateBeforeToday(date);
+      res.status(200).send({ message: "Sucess delete ALL contracts" });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

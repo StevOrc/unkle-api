@@ -22,7 +22,10 @@ router.post("/", [
 // UPDATE contract
 router.patch("/", [verifyAccessToken, contractController.updateContract]);
 
+// UPDATE contract
+router.patch("/date", [contractController.testDate]);
+
 // DELETE contract
-// router.delete("/", [contractController.deleteAll]);
+router.delete("/", [contractController.deleteAll]);
 
 module.exports = router;
