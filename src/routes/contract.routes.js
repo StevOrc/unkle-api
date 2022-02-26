@@ -12,11 +12,17 @@ router.get("/", [
   contractController.getAllContracts,
 ]);
 
-// POST contrac
+// POST contract
 router.post("/", [
   verifyAccessToken,
   isAdmin,
   contractController.createContract,
 ]);
+
+// UPDATE contract
+router.patch("/", [verifyAccessToken, contractController.updateContract]);
+
+// DELETE contract
+// router.delete("/", [contractController.deleteAll]);
 
 module.exports = router;
