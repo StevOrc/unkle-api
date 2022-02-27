@@ -11,6 +11,7 @@ const {
 } = require("../helpers/date-validation");
 const User = require("../models/user.model");
 const Contract = require("../models/contract.model");
+const OptionContract = require("../models/optionContract.model");
 const { format } = require("date-fns");
 const { validateStatus } = require("../helpers/validate-status-contract");
 
@@ -19,7 +20,41 @@ module.exports = {
    * @GET all contracts
    */
   async getAllContracts(req, res, next) {
-    res.status(200).send({ message: "GET ALL CONTRCAT" });
+    try {
+      const contracts = await Contract.find()
+        .populate({ path: "options", model: OptionContract })
+        .populate({ path: "users", model: User });
+      if (!contracts.length)
+        return res.status(200).send({ message: "No data found..." });
+      res.status(200).send({ data: contracts });
+    } catch (error) {
+      console.log("error get all ", error);
+      next(error);
+    }
+  },
+
+  /**
+   * @GET all contracts by user
+   */
+  async getAllContractsByUser(req, res, next) {
+    try {
+      const { sub } = req.payload;
+      const user = await User.findById(sub)
+        .populate({
+          path: "contracts",
+          model: Contract,
+          populate: {
+            path: "options",
+            model: OptionContract,
+          },
+        })
+        .populate({ path: "options", model: OptionContract });
+      if (!user) throw createError.BadRequest(`No user found`);
+      res.status(200).send({ data: user });
+    } catch (error) {
+      console.log("error get all ", error);
+      next(error);
+    }
   },
 
   /**
@@ -127,16 +162,6 @@ module.exports = {
   async deleteAll(req, res, next) {
     try {
       await Contract.deleteMany({});
-      res.status(200).send({ message: "Sucess delete ALL contracts" });
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  async testDate(req, res, next) {
-    try {
-      const { date } = req.body;
-      const result = isDateBeforeToday(date);
       res.status(200).send({ message: "Sucess delete ALL contracts" });
     } catch (error) {
       next(error);

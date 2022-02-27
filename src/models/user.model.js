@@ -20,16 +20,26 @@ const userSchema = new mongoose.Schema({
   contracts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Contract" }],
 });
 
-userSchema.pre("save", async function (next) {
-  try {
-    const salt = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(this.password, salt);
-    this.password = hashPassword;
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
+// userSchema.pre("save", async function (next) {
+//   try {
+//     const salt = await bcrypt.genSalt(10);
+//     const hashPassword = await bcrypt.hash(this.password, salt);
+//     this.password = hashPassword;
+//     next();
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
+// userSchema.methods.hashPassword = async function (password) {
+//   try {
+//     const salt = await bcrypt.genSalt(10);
+//     const hashPassword = await bcrypt.hash(password, salt);
+//     this.password = hashPassword;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 // Implement a validate password method attached to the user model
 userSchema.methods.isValidPassword = async function (password) {
