@@ -6,6 +6,7 @@ module.exports = {
    * @param {*} contract
    */
   validateStatus(contract) {
+    let status = "";
     const splitStartDate = format(contract.startDate, "yyyy-MM-dd").split("-");
     const dateNow = new Date(Date.now());
     const isDateNowBeforeStartDate = isBefore(
@@ -14,9 +15,9 @@ module.exports = {
     );
 
     if (isDateNowBeforeStartDate) {
-      contract.status = "pending";
+      status = "pending";
     } else {
-      contract.status = "active";
+      status = "active";
       if (contract.endDate) {
         const splitEndDate = format(contract.endDate, "yyyy-MM-dd").split("-");
         const isDateNowBeforeEndDate = isBefore(
@@ -28,11 +29,11 @@ module.exports = {
           new Date(splitEndDate[0], splitEndDate[1] - 1, splitEndDate[2])
         );
 
-        if (isDateNowBeforeEndDate) contract.status = "active";
-        else contract.status = "finished";
+        if (isDateNowBeforeEndDate) status = "active";
+        else status = "finished";
       }
     }
 
-    return contract;
+    return status;
   },
 };
