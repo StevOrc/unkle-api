@@ -92,7 +92,8 @@ module.exports = {
       });
 
       // Before saving the contract we update it's status
-      newContract = validateStatus(newContract);
+      const status = validateStatus(newContract);
+      newContract.status = status;
 
       const savedContract = await newContract.save();
       savedContract.users.forEach(async (el) => {
@@ -148,7 +149,8 @@ module.exports = {
       });
       contract.users = [];
 
-      contract = validateStatus(contract);
+      const status = validateStatus(contract);
+      contract.status = status;
 
       await contract.save();
       res.status(200).send({ message: "with success" });
