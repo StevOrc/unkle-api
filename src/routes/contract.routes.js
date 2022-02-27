@@ -5,11 +5,17 @@ const { verifyAccessToken } = require("../middlewares/verifyToken");
 
 const router = express.Router();
 
-// GET ALL
+// GET ALL only admin
 router.get("/", [
   verifyAccessToken,
   isAdmin,
   contractController.getAllContracts,
+]);
+
+// GET ALL of given user
+router.get("/user-contract", [
+  verifyAccessToken,
+  contractController.getAllContractsByUser,
 ]);
 
 // POST contract
@@ -21,9 +27,6 @@ router.post("/", [
 
 // UPDATE contract
 router.patch("/", [verifyAccessToken, contractController.updateContract]);
-
-// UPDATE contract
-router.patch("/date", [contractController.testDate]);
 
 // DELETE contract
 router.delete("/", [contractController.deleteAll]);

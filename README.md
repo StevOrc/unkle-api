@@ -15,3 +15,16 @@ Here are the steps to follow for running the API locally :
 
     5 - npm run data:import (populate data in DB)
     6 - npm run dev
+
+Once all the above steps done, you can now test the application.
+
+Authentication routes :
+
+    POST   -  localhost:4000/api/v1/auth/login
+    POST   -  localhost:4000/api/v1/auth/signin
+
+Contracts routes :
+
+    POST   -  localhost:4000/api/v1/contracts
+    GET    -  localhost:4000/api/v1/contracts
+    PATCH  -  localhost:4000/api/v1/contracts
